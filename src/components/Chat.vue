@@ -3,17 +3,18 @@
         <h1>Wizards Poke</h1>
         <small v-if="accounts.user">Your account: {{accounts.user}}</small>
         <hr/>
-        <label for="other">View Wizards of: </label>
-        <input id="other" type="text"/>
-        <button>View</button>
+        <label for="other">Poke Wizards Owner: </label>
+        <input id="other" type="text" v-model="accounts.other"/>
+        <button @click="poke">Poke</button>
     </div>
 </template>
 
 <script>
     import {ethers} from "ethers";
     import Accounts from '@/Firebase/Accounts';
-    import {messaging} from '@/Firebase/index';
+    import {messaging, admin} from '@/Firebase/index';
     import env from '@/_config/env';
+
     messaging.usePublicVapidKey(env.messaging.publicVapidKey);
 
     export default {
@@ -21,29 +22,41 @@
         props: {
             msg: String
         },
-        data: function() {
-          return {
-              accounts: {
-                  user: null,
-                  other: null
-              }
-          };
+        data: function () {
+            return {
+                accounts: {
+                    user: null,
+                    other: null
+                }
+            };
         },
-      methods: {
-          onFCMTokenReceived: async function(token) {
-            if (token) {
-              console.log('token', token);
-              await Accounts.upsertFirebaseMessagingTokenForAccount(this.accounts.user, token);
-            } else {
-              console.log('Unable to retrieve token - check permissions');
+        methods: {
+            onFCMTokenReceived: async function (token) {
+                if (token) {
+                    console.log('token', token);
+                    await Accounts.upsertFirebaseMessagingTokenForAccount(this.accounts.user, token);
+                } else {
+                    console.log('Unable to retrieve token - check permissions');
+                }
+            },
+            getFCMToken: function () {
+                messaging.getToken()
+                    .then(currentToken => this.onFCMTokenReceived(currentToken))
+                    .catch((err) => console.log('An error occurred while retrieving token. ', err));
+            },
+            poke: async function () {
+                const firebaseMessagingToken = Accounts.getFirebaseMessagingTokenForAccount(this.accounts.user);
+                console.log('firebaseMessagingToken', firebaseMessagingToken);
+                const payload = {
+                    token: firebaseMessagingToken,
+                    notification: {
+                        title: "Poke alert",
+                        body: "lolz",
+                    }
+                };
+                return admin.messaging().send(payload);
             }
-          },
-        getFCMToken: function() {
-          messaging.getToken()
-                  .then(currentToken => this.onFCMTokenReceived(currentToken))
-                  .catch((err) => console.log('An error occurred while retrieving token. ', err));
-        }
-      },
+        },
         async mounted() {
             await window.ethereum.enable();
             const provider = new ethers.providers.Web3Provider(web3.currentProvider);
