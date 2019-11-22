@@ -62,6 +62,10 @@
                         this.getFCMToken();
 
                         messaging.onTokenRefresh(() => this.getFCMToken());
+
+                        messaging.onMessage(payload => {
+                            console.log('Message received. ', payload);
+                        });
                     } else {
                         console.log('Unable to get permission to notify.');
                     }
