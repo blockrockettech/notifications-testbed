@@ -1,6 +1,6 @@
 <template>
     <div class="hello">
-        <h1>Crypto Kitties Poke</h1>
+        <h1>Crypto Kitties Tinder🔥</h1>
         <small v-if="accounts.user">Your account: {{accounts.user}}</small>
         <div v-if="kitties.user && kitties.user.length">
             <small>Your kitties:</small>
@@ -22,7 +22,7 @@
             <small>Found kitties:</small>
             <ul>
                 <li v-for="(kittie, idx) in kitties.other" :key="idx">
-                    <small>{{kittie}}</small> - <button @click="poke(kittie)">Poke</button>
+                    <small>{{kittie}}</small> - <button @click="poke(kittie)">Poke</button> - <button @click="swipeRight(kittie)">Swipe Right🔥</button>
                 </li>
             </ul>
         </div>
@@ -70,15 +70,26 @@
             },
             poke: function (kittieId) {
                 const uuid = this.$uuid;
-                console.log('hi')
                 const pokeId = uuid.v4();
                 db.collection('kitties').doc('network').collection('mainnet').doc(kittieId)
                     .collection('poke')
                     .doc(pokeId)
-                    .set({msg: 'Hello treakle, want to tinder?'}, {
+                    .set({msg: 'Hello treakle, want to tinder?', from: this.accounts.user, stud: this.kitties.user[0]}, {
                         merge: true
                     });
                 console.log(`poke [[${pokeId}]] to kittie ${kittieId}`);
+            },
+            swipeRight: function (kittieId) {
+                const uuid = this.$uuid;
+                const swipeId = uuid.v4();
+                const stud = this.kitties.user[0];
+                db.collection('kitties').doc('network').collection('mainnet').doc(kittieId)
+                    .collection('swipeRight')
+                    .doc(swipeId)
+                    .set({msg: `Hello treakle, want to breed with ${stud}?`, from: this.accounts.user, stud}, {
+                        merge: true
+                    });
+                console.log(`swipe [[${swipeId}]] to kittie ${kittieId}`);
             },
             find: async function() {
                 this.kitties.other = await this.getKittiesForAddressFromDB('mainnet', this.accounts.other);
