@@ -12,7 +12,7 @@
 <script>
     import {ethers} from "ethers";
     import Accounts from '@/Firebase/Accounts';
-    import {messaging, admin} from '@/Firebase/index';
+    import {db, messaging} from '@/Firebase/index';
     import env from '@/_config/env';
 
     messaging.usePublicVapidKey(env.messaging.publicVapidKey);
@@ -44,17 +44,15 @@
                     .then(currentToken => this.onFCMTokenReceived(currentToken))
                     .catch((err) => console.log('An error occurred while retrieving token. ', err));
             },
-            poke: async function () {
-                const firebaseMessagingToken = Accounts.getFirebaseMessagingTokenForAccount(this.accounts.user);
-                console.log('firebaseMessagingToken', firebaseMessagingToken);
-                const payload = {
-                    token: firebaseMessagingToken,
-                    notification: {
-                        title: "Poke alert",
-                        body: "lolz",
-                    }
-                };
-                return admin.messaging().send(payload);
+            poke: function () {
+                const pokeId = this.$uuid.v4();
+                db.collection('wizards').doc('network').collection('rinkeby').doc('293')
+                    .collection('poke')
+                    .doc(pokeId)
+                    .set({msg: 'ullo'}, {
+                        merge: true
+                    });
+                console.log(`poke!! ${pokeId}`);
             }
         },
         async mounted() {

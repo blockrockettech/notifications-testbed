@@ -1,5 +1,6 @@
 # General
 src/_config/
+.firebase/
 
 .DS_Store
 node_modules
