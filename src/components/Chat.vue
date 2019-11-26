@@ -1,11 +1,31 @@
 <template>
     <div class="hello">
-        <h1>Wizards Poke</h1>
+        <h1>Crypoto Kitties Poke</h1>
         <small v-if="accounts.user">Your account: {{accounts.user}}</small>
+        <div v-if="kitties.user && kitties.user.length">
+            <small>Your kitties:</small>
+            <ul>
+                <li v-for="(kittie, idx) in kitties.user" :key="idx">
+                    <small>{{kittie}}</small>
+                </li>
+            </ul>
+        </div>
+        <div v-else>
+            <small>You don't own any kitties according to firebase...</small>
+        </div>
         <hr/>
-        <label for="other">Poke Wizards Owner: </label>
+        <label for="other">Find kitties from ETH Address: </label>
         <input id="other" type="text" v-model="accounts.other"/>
-        <button @click="poke">Poke</button>
+        <button @click="find">Find</button>
+
+        <div v-if="kitties.other && kitties.other.length">
+            <small>Found kitties:</small>
+            <ul>
+                <li v-for="(kittie, idx) in kitties.other" :key="idx">
+                    <small>{{kittie}}</small> - <button @click="poke(kittie)">Poke</button>
+                </li>
+            </ul>
+        </div>
     </div>
 </template>
 
@@ -27,7 +47,11 @@
                 accounts: {
                     user: null,
                     other: null
-                }
+                },
+                kitties: {
+                    user: null,
+                    other: null
+                },
             };
         },
         methods: {
@@ -44,15 +68,36 @@
                     .then(currentToken => this.onFCMTokenReceived(currentToken))
                     .catch((err) => console.log('An error occurred while retrieving token. ', err));
             },
-            poke: function () {
-                const pokeId = this.$uuid.v4();
-                db.collection('wizards').doc('network').collection('rinkeby').doc('293')
+            poke: function (kittieId) {
+                const uuid = this.$uuid;
+                console.log('hi')
+                const pokeId = uuid.v4();
+                db.collection('kitties').doc('network').collection('mainnet').doc(kittieId)
                     .collection('poke')
                     .doc(pokeId)
-                    .set({msg: 'ullo'}, {
+                    .set({msg: 'Hello treakle, want to tinder?'}, {
                         merge: true
                     });
-                console.log(`poke!! ${pokeId}`);
+                console.log(`poke [[${pokeId}]] to kittie ${kittieId}`);
+            },
+            find: async function() {
+                this.kitties.other = await this.getKittiesForAddressFromDB('mainnet', this.accounts.other);
+            },
+            getKittiesForAddressFromDB: async function(network, address) {
+                return await db.collection('kitties')
+                    .doc('network')
+                    .collection(network)
+                    .where('owner', '==', address)
+                    .get()
+                    .then(snapshots => {
+                        if (snapshots.empty) {
+                            return [];
+                        }
+                        return snapshots.docs.map(doc => doc.id);
+                    });
+            },
+            getUserKitties: async function() {
+                this.kitties.user = await this.getKittiesForAddressFromDB('mainnet', this.accounts.user);
             }
         },
         async mounted() {
@@ -77,6 +122,8 @@
                         messaging.onMessage(payload => {
                             console.log('Message received. ', payload);
                         });
+
+                        this.getUserKitties();
                     } else {
                         console.log('Unable to get permission to notify.');
                     }
