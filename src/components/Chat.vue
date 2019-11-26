@@ -1,6 +1,6 @@
 <template>
     <div class="hello">
-        <h1>Crypoto Kitties Poke</h1>
+        <h1>Crypto Kitties Poke</h1>
         <small v-if="accounts.user">Your account: {{accounts.user}}</small>
         <div v-if="kitties.user && kitties.user.length">
             <small>Your kitties:</small>
@@ -32,7 +32,7 @@
 <script>
     import {ethers} from "ethers";
     import Accounts from '@/Firebase/Accounts';
-    import {db, messaging} from '@/Firebase/index';
+    import {db, messaging, firebase} from '@/Firebase/index';
     import env from '@/_config/env';
 
     messaging.usePublicVapidKey(env.messaging.publicVapidKey);
@@ -101,6 +101,17 @@
             }
         },
         async mounted() {
+            messaging.onMessage((payload) => {
+                console.log('Message received. ', payload);
+                const {title, body, icon} = payload.data;
+                new Notification(title, {
+                    body,
+                    icon
+                });
+            });
+
+            messaging.onTokenRefresh(() => this.getFCMToken());
+
             await window.ethereum.enable();
             const provider = new ethers.providers.Web3Provider(web3.currentProvider);
             const signer = provider.getSigner();
@@ -116,12 +127,6 @@
                         console.log('Notification permission granted.');
 
                         this.getFCMToken();
-
-                        messaging.onTokenRefresh(() => this.getFCMToken());
-
-                        messaging.onMessage(payload => {
-                            console.log('Message received. ', payload);
-                        });
 
                         this.getUserKitties();
                     } else {
