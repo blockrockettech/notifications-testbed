@@ -80,16 +80,14 @@
                 console.log(`poke [[${pokeId}]] to kittie ${kittieId}`);
             },
             swipeRight: function (kittieId) {
-                const uuid = this.$uuid;
-                const swipeId = uuid.v4();
                 const stud = this.kitties.user[0];
                 db.collection('kitties').doc('network').collection('mainnet').doc(kittieId)
                     .collection('swipeRight')
-                    .doc(swipeId)
+                    .doc(stud)
                     .set({msg: `Hello treakle, want to breed with ${stud}?`, from: this.accounts.user, stud}, {
                         merge: true
                     });
-                console.log(`swipe [[${swipeId}]] to kittie ${kittieId}`);
+                console.log(`swipe right from ${stud} to ${kittieId}`);
             },
             find: async function() {
                 this.kitties.other = await this.getKittiesForAddressFromDB('mainnet', this.accounts.other);
