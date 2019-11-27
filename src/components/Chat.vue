@@ -32,7 +32,8 @@
 <script>
     import {ethers} from "ethers";
     import Accounts from '@/Firebase/Accounts';
-    import {db, messaging, firebase} from '@/Firebase/index';
+    import {db, messaging} from '@/Firebase/index';
+    import KittiesService from '@/Firebase/CryptoKitties/KittiesService';
     import env from '@/_config/env';
 
     messaging.usePublicVapidKey(env.messaging.publicVapidKey);
@@ -71,42 +72,23 @@
             poke: function (kittieId) {
                 const uuid = this.$uuid;
                 const pokeId = uuid.v4();
-                db.collection('kitties').doc('network').collection('mainnet').doc(kittieId)
-                    .collection('poke')
-                    .doc(pokeId)
-                    .set({msg: 'Hello treakle, want to tinder?', from: this.accounts.user, stud: this.kitties.user[0]}, {
-                        merge: true
-                    });
+                const msg = 'Hello treakle, want to tinder?';
+                KittiesService.poke(pokeId, kittieId, msg, this.accounts.user, this.kitties.user[0]);
+
                 console.log(`poke [[${pokeId}]] to kittie ${kittieId}`);
             },
             swipeRight: function (kittieId) {
                 const stud = this.kitties.user[0];
-                db.collection('kitties').doc('network').collection('mainnet').doc(kittieId)
-                    .collection('swipeRight')
-                    .doc(stud)
-                    .set({msg: `Hello treakle, want to breed with ${stud}?`, from: this.accounts.user, stud}, {
-                        merge: true
-                    });
+                const msg = `Hello treakle, want to breed with ${stud}?`;
+                KittiesService.swipeRight(kittieId, stud, msg, this.accounts.user);
+
                 console.log(`swipe right from ${stud} to ${kittieId}`);
             },
             find: async function() {
-                this.kitties.other = await this.getKittiesForAddressFromDB('mainnet', this.accounts.other);
-            },
-            getKittiesForAddressFromDB: async function(network, address) {
-                return await db.collection('kitties')
-                    .doc('network')
-                    .collection(network)
-                    .where('owner', '==', address)
-                    .get()
-                    .then(snapshots => {
-                        if (snapshots.empty) {
-                            return [];
-                        }
-                        return snapshots.docs.map(doc => doc.id);
-                    });
+                this.kitties.other = await KittiesService.getAllKittiesForAddress('mainnet', this.accounts.other);
             },
             getUserKitties: async function() {
-                this.kitties.user = await this.getKittiesForAddressFromDB('mainnet', this.accounts.user);
+                this.kitties.user = await KittiesService.getAllKittiesForAddress('mainnet', this.accounts.user);
             }
         },
         async mounted() {
