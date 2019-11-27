@@ -73,14 +73,14 @@
                 const uuid = this.$uuid;
                 const pokeId = uuid.v4();
                 const msg = 'Hello treakle, want to tinder?';
-                KittiesService.poke(pokeId, kittieId, msg, this.accounts.user, this.kitties.user[0]);
+                KittiesService.poke('mainnet', pokeId, kittieId, msg, this.accounts.user, this.kitties.user[0]);
 
                 console.log(`poke [[${pokeId}]] to kittie ${kittieId}`);
             },
-            swipeRight: function (kittieId) {
+            swipeRight: async function (kittieId) {
                 const stud = this.kitties.user[0];
                 const msg = `Hello treakle, want to breed with ${stud}?`;
-                KittiesService.swipeRight(kittieId, stud, msg, this.accounts.user);
+                await KittiesService.swipeRight('mainnet', kittieId, stud, msg, this.accounts.user);
 
                 console.log(`swipe right from ${stud} to ${kittieId}`);
             },
@@ -89,6 +89,16 @@
             },
             getUserKitties: async function() {
                 this.kitties.user = await KittiesService.getAllKittiesForAddress('mainnet', this.accounts.user);
+                this.getSwipeRightForUserKitties();
+            },
+            getSwipeRightForUserKitties: async function() {
+                const swipeRightsForAllKitties = await Promise.all(this.kitties.user.map(async kittie =>
+                    ({
+                        kittieId: kittie,
+                        swipeRights: await KittiesService.getAllSwipeRightsForKittie('mainnet', kittie)
+                    })
+                ));
+                console.log('swipeRightsForAllKitties', swipeRightsForAllKitties);
             }
         },
         async mounted() {
