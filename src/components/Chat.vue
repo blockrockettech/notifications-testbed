@@ -79,7 +79,7 @@
                 console.log(`poke [[${pokeId}]] to kittie ${kittieId}`);
             },
             swipeRight: async function (kittieId) {
-                const stud = this.kitties.user[0];
+                const stud = this.kitties.user[0].kittieId;
                 const msg = `Hello treakle, want to breed with ${stud}?`;
                 await KittiesService.swipeRight('mainnet', kittieId, stud, msg, this.accounts.user);
 
