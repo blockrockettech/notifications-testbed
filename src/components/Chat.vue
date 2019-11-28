@@ -86,13 +86,17 @@
                 console.log(`poke [[${pokeId}]] to kittie ${kittieId}`);
             },
             swipeRight: async function (kittieId) {
-                const stud = this.kitties.userSelected;
-                const studImg = this.kitties.user.filter(kittie => kittie.id.toString() === stud)[0].image_url_png;
-                console.log('studImg', studImg);
-                const msg = `Hello treakle, want to breed with ${stud}?`;
-                await KittiesService.swipeRight('mainnet', kittieId, stud, studImg, msg, '0x401cBf2194D35D078c0BcdAe4BeA42275483ab5F'.toLowerCase());
+                const studId = this.kitties.userSelected;
+                const {image_url_png, name} = this.kitties.user.filter(kittie => kittie.id.toString() === studId)[0];
+                const studPayload = {
+                    id: studId,
+                    studImg: image_url_png,
+                    name
+                };
+                const msg = `Want to breed with ${studPayload.name}?`;
+                await KittiesService.swipeRight('mainnet', kittieId, studPayload, msg, '0x401cBf2194D35D078c0BcdAe4BeA42275483ab5F'.toLowerCase());
 
-                console.log(`swipe right from ${stud} to ${kittieId}`);
+                console.log(`swipe right from ${studPayload.id} to ${kittieId}`);
             },
             acceptRight: async function (kittieId, studId) {
                 await KittiesService.matchKitties('mainnet', studId, kittieId);

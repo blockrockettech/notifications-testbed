@@ -104,14 +104,14 @@ export default new class KittiesService {
             });
     }
 
-    async swipeRight(network, kittieId, studId, studImg, message, from) {
-        const payload = {msg: message, from, stud: studId, studImg, status: 'PENDING'};
+    async swipeRight(network, kittieId, stud, msg, from) {
+        const payload = {msg, from, stud, status: 'PENDING'};
         return db.collection('kitties')
             .doc('network')
             .collection(network)
             .doc(kittieId)
             .collection('swipeRight')
-            .doc(studId)
+            .doc(stud.id)
             .set(payload, {
                 merge: true
             });
