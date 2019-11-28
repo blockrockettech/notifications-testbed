@@ -5,8 +5,11 @@
         <div v-if="kitties.user && kitties.user.length">
             <small>Your kitties:</small>
             <ul>
-                <li v-for="(kittie, idx) in kitties.user" :key="idx">
-                    <small>{{kittie.kittieId}}</small>
+                <li v-for="(kittie, idx) in kitties.user" :key="idx" style="display: block;">
+                    <input type="radio"/>
+                    <small> {{kittie.id}}</small>
+                    -
+                    <small> {{kittie.name}}</small>
                     <small v-for="(swipeRight, idx) in kittie.swipeRights" :key="idx"> - {{swipeRight.status}} Swipe Right from {{swipeRight.stud}} <button @click="acceptRight(kittie.kittieId, swipeRight.stud)" v-if="swipeRight.status === 'PENDING'">Accept</button></small>
                 </li>
             </ul>
@@ -22,8 +25,8 @@
         <div v-if="kitties.other && kitties.other.length">
             <small>Found kitties:</small>
             <ul>
-                <li v-for="(kittie, idx) in kitties.other" :key="idx">
-                    <small>{{kittie}}</small> - <button @click="poke(kittie)">Poke</button> - <button @click="swipeRight(kittie)">Swipe Right🔥</button>
+                <li v-for="(kittie, idx) in kitties.other" :key="idx" style="display: block;">
+                    <small>{{kittie.id}}-{{kittie.name}}</small> - <button @click="poke(kittie)">Poke</button> - <button @click="swipeRight(kittie.id.toString())">Swipe Right🔥</button>
                 </li>
             </ul>
         </div>
@@ -31,6 +34,7 @@
 </template>
 
 <script>
+    import axios from 'axios';
     import {ethers} from "ethers";
     import Accounts from '@/Firebase/Accounts';
     import {db, messaging} from '@/Firebase/index';
@@ -79,7 +83,7 @@
                 console.log(`poke [[${pokeId}]] to kittie ${kittieId}`);
             },
             swipeRight: async function (kittieId) {
-                const stud = this.kitties.user[0].kittieId;
+                const stud = this.kitties.user[0].id.toString();
                 const msg = `Hello treakle, want to breed with ${stud}?`;
                 await KittiesService.swipeRight('mainnet', kittieId, stud, msg, this.accounts.user);
 
@@ -90,10 +94,16 @@
                 console.log('done matching!');
             },
             find: async function() {
-                this.kitties.other = await KittiesService.getAllKittiesForAddress('mainnet', this.accounts.other);
+                this.kitties.other = await KittiesService.getAllKittiesForAddress('mainnet', this.accounts.other.toLowerCase());
+                console.log(this.kitties.other);
+                console.log(this.accounts.other);
             },
             getUserKitties: async function() {
-                this.kitties.user = await KittiesService.getAllKittiesWithSwipeRightsForAddress('mainnet', this.accounts.user);
+                const kitties = (await axios.get('https://api.cryptokitties.co/v2/kitties?offset=0&limit=12&owner_wallet_address=0x401cBf2194D35D078c0BcdAe4BeA42275483ab5F&parents=false&authenticated=true&include=sale,sire,other&orderBy=id&orderDirection=desc')).data.kitties;
+                console.log('kitties', kitties);
+                this.kitties.user = kitties;
+                KittiesService.upsertKitties('mainnet', kitties);
+                //this.kitties.user = await KittiesService.getAllKittiesWithSwipeRightsForAddress('mainnet', /*this.accounts.user*/'0x401cBf2194D35D078c0BcdAe4BeA42275483ab5F');
             },
         },
         async mounted() {

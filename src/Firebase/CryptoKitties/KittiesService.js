@@ -6,13 +6,13 @@ export default new class KittiesService {
         return db.collection('kitties')
             .doc('network')
             .collection(network)
-            .where('owner', '==', address)
+            .where('owner.address', '==', address)
             .get()
             .then(snapshots => {
                 if (snapshots.empty) {
                     return [];
                 }
-                return snapshots.docs.map(doc => doc.id);
+                return snapshots.docs.map(doc => doc.data());
             });
     }
 
@@ -35,7 +35,7 @@ export default new class KittiesService {
         return db.collection('kitties')
             .doc('network')
             .collection(network)
-            .where('owner', '==', address)
+            .where('owner.address', '==', address)
             .get()
             .then(snapshots => {
                 if (snapshots.empty) {
@@ -48,6 +48,22 @@ export default new class KittiesService {
                         swipeRights: await this.getAllSwipeRightsForKittie(network, kittieId)
                     })));
             });
+    }
+
+    async upsertKitties(network, kitties) {
+        //checkValidNetwork(network);
+
+        return Promise.all(kitties.map(kittie => {
+            // /kitties/network/{networkID}/{kittieId}/
+            return db
+                .collection('kitties')
+                .doc('network')
+                .collection(network)
+                .doc(kittie.id.toString())
+                .set(kittie, {
+                    merge: true
+                });
+        }));
     }
 
     async matchKitties(network, studId, otherKittieId) {
