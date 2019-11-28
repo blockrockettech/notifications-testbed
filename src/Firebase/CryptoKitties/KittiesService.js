@@ -3,7 +3,7 @@ import {db} from '../index';
 
 export default new class KittiesService {
     async getAllKittiesForAddress(network, address) {
-        return await db.collection('kitties')
+        return db.collection('kitties')
             .doc('network')
             .collection(network)
             .where('owner', '==', address)
@@ -17,7 +17,7 @@ export default new class KittiesService {
     }
 
     async getAllSwipeRightsForKittie(network, kittieId) {
-        return await db.collection('kitties')
+        return db.collection('kitties')
             .doc('network')
             .collection(network)
             .doc(kittieId)
@@ -28,6 +28,25 @@ export default new class KittiesService {
                     return [];
                 }
                 return snapshots.docs.map(doc => doc.data());
+            });
+    }
+
+    async getAllKittiesWithSwipeRightsForAddress(network, address) {
+        return db.collection('kitties')
+            .doc('network')
+            .collection(network)
+            .where('owner', '==', address)
+            .get()
+            .then(snapshots => {
+                if (snapshots.empty) {
+                    return [];
+                }
+                return Promise.all(snapshots.docs
+                    .map(doc => doc.id)
+                    .map(async kittieId => ({
+                        kittieId,
+                        swipeRights: await this.getAllSwipeRightsForKittie(network, kittieId)
+                    })));
             });
     }
 

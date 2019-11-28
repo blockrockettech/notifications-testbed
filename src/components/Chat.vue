@@ -89,20 +89,8 @@
                 this.kitties.other = await KittiesService.getAllKittiesForAddress('mainnet', this.accounts.other);
             },
             getUserKitties: async function() {
-                this.kitties.user = await KittiesService.getAllKittiesForAddress('mainnet', this.accounts.user);
-                this.getAllSwipeRightsForKittie();
+                this.kitties.user = await KittiesService.getAllKittiesWithSwipeRightsForAddress('mainnet', this.accounts.user);
             },
-            getAllSwipeRightsForKittie: async function() {
-                // todo - move this into the Kitties Service
-                const kittiesWithSwipeRights = await Promise.all(this.kitties.user.map(async kittie =>
-                    ({
-                        kittieId: kittie,
-                        swipeRights: await KittiesService.getAllSwipeRightsForKittie('mainnet', kittie)
-                    })
-                ));
-                this.kitties.user = kittiesWithSwipeRights;
-                console.log('swipeRightsForAllKitties', kittiesWithSwipeRights);
-            }
         },
         async mounted() {
             messaging.onMessage((payload) => {
