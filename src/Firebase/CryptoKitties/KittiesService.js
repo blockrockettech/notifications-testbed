@@ -50,6 +50,32 @@ export default new class KittiesService {
             });
     }
 
+    async matchKitties(network, studId, otherKittieId) {
+        // challenger data
+        const studMatchData = {
+            otherKittieId
+        };
+
+        // challengee data
+        const otherKittieMatchData = {
+            studId
+        };
+
+        const networkRef = db.collection('kitties').doc('network').collection(network);
+        const studMatchDataRef = networkRef.doc(studId).collection('match').doc(otherKittieId);
+        const otherMatchDataRef = networkRef.doc(otherKittieId).collection('match').doc(studId);
+        const studSwipeRightDataRef = networkRef.doc(studId).collection('swipeRight').doc(otherKittieId);
+        const otherSwipeRightDataRef = networkRef.doc(otherKittieId).collection('swipeRight').doc(studId);
+
+        await db.runTransaction(t => {
+            t.set(studMatchDataRef, studMatchData);
+            t.set(studSwipeRightDataRef, { status: 'MATCH' }, {merge: true});
+            t.set(otherMatchDataRef, otherKittieMatchData);
+            t.set(otherSwipeRightDataRef, { status: 'MATCH' }, {merge: true});
+            return Promise.resolve('done');
+        });
+    }
+
     async poke(network, pokeId, kittieId, message, from, studId) {
         return db.collection('kitties')
             .doc('network')

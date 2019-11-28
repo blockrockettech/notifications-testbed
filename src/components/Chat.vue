@@ -7,7 +7,7 @@
             <ul>
                 <li v-for="(kittie, idx) in kitties.user" :key="idx">
                     <small>{{kittie.kittieId}}</small>
-                    <small v-for="(swipeRight, idx) in kittie.swipeRights" :key="idx"> - {{swipeRight.status}} Swipe Right from {{swipeRight.stud}} <button>Accept</button></small>
+                    <small v-for="(swipeRight, idx) in kittie.swipeRights" :key="idx"> - {{swipeRight.status}} Swipe Right from {{swipeRight.stud}} <button @click="acceptRight(kittie.kittieId, swipeRight.stud)" v-if="swipeRight.status === 'PENDING'">Accept</button></small>
                 </li>
             </ul>
         </div>
@@ -84,6 +84,10 @@
                 await KittiesService.swipeRight('mainnet', kittieId, stud, msg, this.accounts.user);
 
                 console.log(`swipe right from ${stud} to ${kittieId}`);
+            },
+            acceptRight: async function (kittieId, studId) {
+                await KittiesService.matchKitties('mainnet', studId, kittieId);
+                console.log('done matching!');
             },
             find: async function() {
                 this.kitties.other = await KittiesService.getAllKittiesForAddress('mainnet', this.accounts.other);
