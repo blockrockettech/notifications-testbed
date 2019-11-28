@@ -11,7 +11,7 @@
                     <small> {{kittie.id}}</small>
                     -
                     <small> {{kittie.name}}</small>
-                    <small v-for="(swipeRight, idx) in kittie.swipeRights" :key="idx"> - {{swipeRight.status}} Swipe Right from {{swipeRight.stud}} <button @click="acceptRight(kittie.kittieId, swipeRight.stud)" v-if="swipeRight.status === 'PENDING'">Accept</button></small>
+                    <small v-for="(swipeRight, idx) in kittie.swipeRights" :key="idx"> - {{swipeRight.status}} Swipe Right from <img style="height: 80px" :src="swipeRight.stud.studImg" /> <button @click="acceptRight(kittie.id, swipeRight.stud.id)" v-if="swipeRight.status === 'PENDING'">Accept</button></small>
                 </li>
             </ul>
         </div>
@@ -99,7 +99,7 @@
                 console.log(`swipe right from ${studPayload.id} to ${kittieId}`);
             },
             acceptRight: async function (kittieId, studId) {
-                await KittiesService.matchKitties('mainnet', studId, kittieId);
+                await KittiesService.matchKitties('mainnet', studId.toString(), kittieId.toString());
                 console.log('done matching!');
             },
             find: async function() {
@@ -107,11 +107,16 @@
             },
             getUserKitties: async function() {
                 const kitties = (await axios.get('https://api.cryptokitties.co/v2/kitties?offset=0&limit=12&owner_wallet_address=0x401cBf2194D35D078c0BcdAe4BeA42275483ab5F&parents=false&authenticated=true&include=sale,sire,other&orderBy=id&orderDirection=desc')).data.kitties;
-                console.log('kitties', kitties);
                 this.kitties.userSelected = kitties[0].id.toString();
                 this.kitties.user = kitties;
-                KittiesService.upsertKitties('mainnet', kitties);
+                this.upsertKittiesAndGetSwipeRights(kitties);
                 //this.kitties.user = await KittiesService.getAllKittiesWithSwipeRightsForAddress('mainnet', /*this.accounts.user*/'0x401cBf2194D35D078c0BcdAe4BeA42275483ab5F');
+            },
+            upsertKittiesAndGetSwipeRights: async function(kitties) {
+                await KittiesService.upsertKitties('mainnet', kitties);
+                this.kitties.user = await KittiesService.getAllKittiesWithSwipeRightsForAddress('mainnet', '0x401cBf2194D35D078c0BcdAe4BeA42275483ab5F'.toLowerCase());
+                this.kitties.userSelected = this.kitties.user[0].id.toString();
+                console.log(this.kitties.user);
             },
             userKittieSelected: async function(e) {
                 this.kitties.userSelected = e.target.value;

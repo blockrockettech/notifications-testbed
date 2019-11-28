@@ -42,10 +42,10 @@ export default new class KittiesService {
                     return [];
                 }
                 return Promise.all(snapshots.docs
-                    .map(doc => doc.id)
-                    .map(async kittieId => ({
-                        kittieId,
-                        swipeRights: await this.getAllSwipeRightsForKittie(network, kittieId)
+                    .map(doc => doc.data())
+                    .map(async kittie => ({
+                        ...kittie,
+                        swipeRights: await this.getAllSwipeRightsForKittie(network, kittie.id.toString())
                     })));
             });
     }
