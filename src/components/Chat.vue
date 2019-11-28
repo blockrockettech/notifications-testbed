@@ -6,7 +6,8 @@
             <small>Your kitties:</small>
             <ul>
                 <li v-for="(kittie, idx) in kitties.user" :key="idx" style="display: block;">
-                    <input type="radio"/>
+                    <input type="radio" name="userKittie" :checked="kittie.id.toString() === kitties.userSelected" :value="kittie.id.toString()" @change="userKittieSelected"/>
+                    <img style="height: 80px" :src="kittie.image_url_png" />
                     <small> {{kittie.id}}</small>
                     -
                     <small> {{kittie.name}}</small>
@@ -26,6 +27,7 @@
             <small>Found kitties:</small>
             <ul>
                 <li v-for="(kittie, idx) in kitties.other" :key="idx" style="display: block;">
+                    <img style="height: 80px" :src="kittie.image_url_png" />
                     <small>{{kittie.id}}-{{kittie.name}}</small> - <button @click="poke(kittie)">Poke</button> - <button @click="swipeRight(kittie.id.toString())">Swipe Right🔥</button>
                 </li>
             </ul>
@@ -56,7 +58,8 @@
                 },
                 kitties: {
                     user: null,
-                    other: null
+                    other: null,
+                    userSelected: null
                 },
             };
         },
@@ -64,7 +67,7 @@
             onFCMTokenReceived: async function (token) {
                 if (token) {
                     console.log('token', token);
-                    await Accounts.upsertFirebaseMessagingTokenForAccount(this.accounts.user, token);
+                    await Accounts.upsertFirebaseMessagingTokenForAccount('0x401cBf2194D35D078c0BcdAe4BeA42275483ab5F'.toLowerCase(), token);
                 } else {
                     console.log('Unable to retrieve token - check permissions');
                 }
@@ -83,9 +86,11 @@
                 console.log(`poke [[${pokeId}]] to kittie ${kittieId}`);
             },
             swipeRight: async function (kittieId) {
-                const stud = this.kitties.user[0].id.toString();
+                const stud = this.kitties.userSelected;
+                const studImg = this.kitties.user.filter(kittie => kittie.id.toString() === stud)[0].image_url_png;
+                console.log('studImg', studImg);
                 const msg = `Hello treakle, want to breed with ${stud}?`;
-                await KittiesService.swipeRight('mainnet', kittieId, stud, msg, this.accounts.user);
+                await KittiesService.swipeRight('mainnet', kittieId, stud, studImg, msg, '0x401cBf2194D35D078c0BcdAe4BeA42275483ab5F'.toLowerCase());
 
                 console.log(`swipe right from ${stud} to ${kittieId}`);
             },
@@ -95,16 +100,18 @@
             },
             find: async function() {
                 this.kitties.other = await KittiesService.getAllKittiesForAddress('mainnet', this.accounts.other.toLowerCase());
-                console.log(this.kitties.other);
-                console.log(this.accounts.other);
             },
             getUserKitties: async function() {
                 const kitties = (await axios.get('https://api.cryptokitties.co/v2/kitties?offset=0&limit=12&owner_wallet_address=0x401cBf2194D35D078c0BcdAe4BeA42275483ab5F&parents=false&authenticated=true&include=sale,sire,other&orderBy=id&orderDirection=desc')).data.kitties;
                 console.log('kitties', kitties);
+                this.kitties.userSelected = kitties[0].id.toString();
                 this.kitties.user = kitties;
                 KittiesService.upsertKitties('mainnet', kitties);
                 //this.kitties.user = await KittiesService.getAllKittiesWithSwipeRightsForAddress('mainnet', /*this.accounts.user*/'0x401cBf2194D35D078c0BcdAe4BeA42275483ab5F');
             },
+            userKittieSelected: async function(e) {
+                this.kitties.userSelected = e.target.value;
+            }
         },
         async mounted() {
             messaging.onMessage((payload) => {

@@ -104,8 +104,8 @@ export default new class KittiesService {
             });
     }
 
-    async swipeRight(network, kittieId, studId, message, from) {
-        const payload = {msg: message, from, stud: studId, status: 'PENDING'};
+    async swipeRight(network, kittieId, studId, studImg, message, from) {
+        const payload = {msg: message, from, stud: studId, studImg, status: 'PENDING'};
         return db.collection('kitties')
             .doc('network')
             .collection(network)
