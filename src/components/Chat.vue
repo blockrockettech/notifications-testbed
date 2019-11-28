@@ -6,7 +6,8 @@
             <small>Your kitties:</small>
             <ul>
                 <li v-for="(kittie, idx) in kitties.user" :key="idx">
-                    <small>{{kittie}}</small>
+                    <small>{{kittie.kittieId}}</small>
+                    <small v-for="(swipeRight, idx) in kittie.swipeRights" :key="idx"> - {{swipeRight.status}} Swipe Right from {{swipeRight.stud}} <button>Accept</button></small>
                 </li>
             </ul>
         </div>
@@ -89,16 +90,18 @@
             },
             getUserKitties: async function() {
                 this.kitties.user = await KittiesService.getAllKittiesForAddress('mainnet', this.accounts.user);
-                this.getSwipeRightForUserKitties();
+                this.getAllSwipeRightsForKittie();
             },
-            getSwipeRightForUserKitties: async function() {
-                const swipeRightsForAllKitties = await Promise.all(this.kitties.user.map(async kittie =>
+            getAllSwipeRightsForKittie: async function() {
+                // todo - move this into the Kitties Service
+                const kittiesWithSwipeRights = await Promise.all(this.kitties.user.map(async kittie =>
                     ({
                         kittieId: kittie,
                         swipeRights: await KittiesService.getAllSwipeRightsForKittie('mainnet', kittie)
                     })
                 ));
-                console.log('swipeRightsForAllKitties', swipeRightsForAllKitties);
+                this.kitties.user = kittiesWithSwipeRights;
+                console.log('swipeRightsForAllKitties', kittiesWithSwipeRights);
             }
         },
         async mounted() {
