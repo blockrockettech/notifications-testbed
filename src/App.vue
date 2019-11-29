@@ -1,5 +1,7 @@
 <template>
   <div class="container">
+    <h1 class="text-center">🔥Crypto Kitties Tinder🔥</h1>
+
     <router-view/>
   </div>
 </template>

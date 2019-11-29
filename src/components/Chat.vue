@@ -1,6 +1,5 @@
 <template>
     <div class="hello">
-        <h1>🔥Crypto Kitties Tinder🔥</h1>
 
         <div class="row mb-4" v-if="accounts.user">
             <div class="col">
