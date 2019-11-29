@@ -1,37 +1,98 @@
 <template>
     <div class="hello">
-        <h1>Crypto Kitties Tinder🔥</h1>
-        <small v-if="accounts.user">Your account: {{accounts.user}}</small>
-        <div v-if="kitties.user && kitties.user.length">
-            <small>Your kitties:</small>
-            <ul>
-                <li v-for="(kittie, idx) in kitties.user" :key="idx" style="display: block;">
-                    <input type="radio" name="userKittie" :checked="kittie.id.toString() === kitties.userSelected" :value="kittie.id.toString()" @change="userKittieSelected"/>
-                    <img style="height: 80px" :src="kittie.image_url_png" />
-                    <small> {{kittie.id}}</small>
-                    -
-                    <small> {{kittie.name}}</small>
-                    <small v-for="(swipeRight, idx) in kittie.swipeRights" :key="idx"> - {{swipeRight.status}} Swipe Right from <img style="height: 80px" :src="swipeRight.stud.studImg" /> <button @click="acceptRight(kittie.id, swipeRight.stud.id)" v-if="swipeRight.status === 'PENDING'">Accept</button></small>
-                </li>
-            </ul>
-        </div>
-        <div v-else>
-            <small>You don't own any kitties according to firebase...</small>
-        </div>
-        <hr/>
-        <label for="other">Find kitties from ETH Address: </label>
-        <input id="other" type="text" v-model="accounts.other"/>
-        <button @click="find">Find</button>
+        <h1>🔥Crypto Kitties Tinder🔥</h1>
 
-        <div v-if="kitties.other && kitties.other.length">
-            <small>Found kitties:</small>
-            <ul>
-                <li v-for="(kittie, idx) in kitties.other" :key="idx" style="display: block;">
-                    <img style="height: 80px" :src="kittie.image_url_png" />
-                    <small>{{kittie.id}}-{{kittie.name}}</small> - <button @click="poke(kittie)">Poke</button> - <button @click="swipeRight(kittie.id.toString())">Swipe Right🔥</button>
-                </li>
-            </ul>
+        <div class="row mb-4" v-if="accounts.user">
+            <div class="col">
+               Your account: {{accounts.user}}
+            </div>
         </div>
+
+        <div v-if="kitties.user && kitties.user.length" class="row">
+            <div class="col">
+                <b-card-group columns>
+
+                    <b-card :img-src="kittie.image_url_png" v-for="(kittie, idx) in kitties.user" :key="idx" class="p-0" :class="{'border-primary': kittie.id.toString() === kitties.userSelected}">
+                        <b-card-title class="text-center">{{ kittie.name }}</b-card-title>
+                        <b-card-text class="">
+                            <div class="row text-center">
+                                <div class="col"><span class="badge badge-light">{{ kittie.id }}</span></div>
+                                <div class="col"><span class="badge badge-primary">GEN: {{ kittie.generation }}</span></div>
+                            </div>
+                        </b-card-text>
+
+                        <b-list-group flush class="border-top">
+                            <b-list-group-item v-for="(swipeRight, idx) in kittie.swipeRights" :key="idx" :class="{'bg-light': swipeRight.status === 'PENDING', 'bg-minty': swipeRight.status === 'MATCH'}">
+                                <div class="row">
+                                    <div class="col">
+                                        <span class="badge" :class="{'badge-warning': swipeRight.status === 'PENDING', 'badge-light': swipeRight.status === 'MATCH'}">{{swipeRight.status}}</span>
+                                    </div>
+                                    <div class="col text-center">
+                                        <img style="height: 80px" :src="swipeRight.stud.studImg"/>
+                                    </div>
+                                    <div class="col text-right">
+                                        <button @click="acceptRight(kittie.id, swipeRight.stud.id)" v-if="swipeRight.status === 'PENDING'" class="btn">💖</button>
+                                    </div>
+                                </div>
+                            </b-list-group-item>
+                        </b-list-group>
+                    </b-card>
+
+                </b-card-group>
+            </div>
+            <!--<ul>-->
+                <!--<li v-for="(kittie, idx) in kitties.user" :key="idx" style="display: block;">-->
+                    <!--<input type="radio" name="userKittie" :checked="kittie.id.toString() === kitties.userSelected" :value="kittie.id.toString()" @change="userKittieSelected"/>-->
+                    <!--<img style="height: 80px" :src="kittie.image_url_png"/>-->
+                    <!--<small> {{kittie.id}}</small>-->
+                    <!-- - -->
+                    <!--<small> {{kittie.name}}</small>-->
+                    <!--<small v-for="(swipeRight, idx) in kittie.swipeRights" :key="idx">-->
+                        <!-- - {{swipeRight.status}} Swipe Right from <img style="height: 80px" :src="swipeRight.stud.studImg"/>-->
+                        <!--<button @click="acceptRight(kittie.id, swipeRight.stud.id)" v-if="swipeRight.status === 'PENDING'">💖</button>-->
+                    <!--</small>-->
+                <!--</li>-->
+            <!--</ul>-->
+        </div>
+        <div v-else class="alert alert-warning">
+            You don't own any kitties...
+        </div>
+
+        <hr/>
+
+        <div class="row mb-4">
+            <div class="col-8">
+                <input id="other" type="text" v-model="accounts.other" class="form-control" placeholder="find kitties"/>
+            </div>
+            <div class="col-4">
+                <button @click="find" class="btn btn-secondary">Find</button>
+            </div>
+        </div>
+
+        <b-card-group columns v-if="kitties.other && kitties.other.length">
+
+            <b-card :img-src="kittie.image_url_png" v-for="(kittie, idx) in kitties.other" :key="idx" class="p-0">
+                <b-card-title class="text-center">{{ kittie.name }}</b-card-title>
+                <b-card-text class="">
+                    <div class="row text-center">
+                        <div class="col"><span class="badge badge-light">{{ kittie.id }}</span></div>
+                        <div class="col"><span class="badge badge-primary">GEN: {{ kittie.generation }}</span></div>
+                    </div>
+                </b-card-text>
+
+                <b-card-footer>
+                    <div class="row">
+                        <div class="col">
+                            <button class="btn">💔</button>
+                        </div>
+                        <div class="col text-right">
+                            <button @click="swipeRight(kittie.id.toString())" class="btn">💖</button>
+                        </div>
+                    </div>
+                </b-card-footer>
+            </b-card>
+
+        </b-card-group>
     </div>
 </template>
 
@@ -102,23 +163,23 @@
                 await KittiesService.matchKitties('mainnet', studId.toString(), kittieId.toString());
                 console.log('done matching!');
             },
-            find: async function() {
+            find: async function () {
                 this.kitties.other = await KittiesService.getAllKittiesForAddress('mainnet', this.accounts.other.toLowerCase());
             },
-            getUserKitties: async function() {
+            getUserKitties: async function () {
                 const cryptoKittiesApiEndpoint = `https://api.cryptokitties.co/v2/kitties?offset=0&limit=12&owner_wallet_address=${this.accounts.user}&parents=false&authenticated=true&include=sale,sire,other&orderBy=id&orderDirection=desc`;
                 const kitties = (await axios.get(cryptoKittiesApiEndpoint)).data.kitties;
                 this.kitties.userSelected = kitties[0].id.toString();
                 this.kitties.user = kitties;
                 this.upsertKittiesAndGetSwipeRights(kitties);
             },
-            upsertKittiesAndGetSwipeRights: async function(kitties) {
+            upsertKittiesAndGetSwipeRights: async function (kitties) {
                 await KittiesService.upsertKitties('mainnet', kitties);
                 this.kitties.user = await KittiesService.getAllKittiesWithSwipeRightsForAddress('mainnet', this.accounts.user.toLowerCase());
                 this.kitties.userSelected = this.kitties.user[0].id.toString();
                 console.log(this.kitties.user);
             },
-            userKittieSelected: async function(e) {
+            userKittieSelected: async function (e) {
                 this.kitties.userSelected = e.target.value;
             }
         },
@@ -157,15 +218,11 @@
                 });
             }
         },
-    }
+    };
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
-    h3 {
-        margin: 40px 0 0;
-    }
-
     ul {
         list-style-type: none;
         padding: 0;
@@ -176,7 +233,7 @@
         margin: 0 10px;
     }
 
-    a {
-        color: #42b983;
+    .card-body {
+        padding: 0;
     }
 </style>
