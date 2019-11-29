@@ -76,18 +76,17 @@ export default new class KittiesService {
         const otherKittieMatchData = {
             studId
         };
+        //todo: add timestamp of match to data
 
         const networkRef = db.collection('kitties').doc('network').collection(network);
         const studMatchDataRef = networkRef.doc(studId).collection('match').doc(otherKittieId);
         const otherMatchDataRef = networkRef.doc(otherKittieId).collection('match').doc(studId);
-        const studSwipeRightDataRef = networkRef.doc(studId).collection('swipeRight').doc(otherKittieId);
         const otherSwipeRightDataRef = networkRef.doc(otherKittieId).collection('swipeRight').doc(studId);
 
         await db.runTransaction(t => {
             t.set(studMatchDataRef, studMatchData);
-            t.set(studSwipeRightDataRef, { status: 'MATCH' }, {merge: true});
             t.set(otherMatchDataRef, otherKittieMatchData);
-            t.set(otherSwipeRightDataRef, { status: 'MATCH' }, {merge: true});
+            t.set(otherSwipeRightDataRef, {status: 'MATCH'}, { merge: true });
             return Promise.resolve('done');
         });
     }
