@@ -67,7 +67,7 @@
             onFCMTokenReceived: async function (token) {
                 if (token) {
                     console.log('token', token);
-                    await Accounts.upsertFirebaseMessagingTokenForAccount('0x401cBf2194D35D078c0BcdAe4BeA42275483ab5F'.toLowerCase(), token);
+                    await Accounts.upsertFirebaseMessagingTokenForAccount(this.accounts.user.toLowerCase(), token);
                 } else {
                     console.log('Unable to retrieve token - check permissions');
                 }
@@ -94,7 +94,7 @@
                     name
                 };
                 const msg = `Want to breed with ${studPayload.name}?`;
-                await KittiesService.swipeRight('mainnet', kittieId, studPayload, msg, '0x401cBf2194D35D078c0BcdAe4BeA42275483ab5F'.toLowerCase());
+                await KittiesService.swipeRight('mainnet', kittieId, studPayload, msg, this.accounts.user.toLowerCase());
 
                 console.log(`swipe right from ${studPayload.id} to ${kittieId}`);
             },
@@ -106,15 +106,15 @@
                 this.kitties.other = await KittiesService.getAllKittiesForAddress('mainnet', this.accounts.other.toLowerCase());
             },
             getUserKitties: async function() {
-                const kitties = (await axios.get('https://api.cryptokitties.co/v2/kitties?offset=0&limit=12&owner_wallet_address=0x401cBf2194D35D078c0BcdAe4BeA42275483ab5F&parents=false&authenticated=true&include=sale,sire,other&orderBy=id&orderDirection=desc')).data.kitties;
+                const cryptoKittiesApiEndpoint = `https://api.cryptokitties.co/v2/kitties?offset=0&limit=12&owner_wallet_address=${this.accounts.user}&parents=false&authenticated=true&include=sale,sire,other&orderBy=id&orderDirection=desc`;
+                const kitties = (await axios.get(cryptoKittiesApiEndpoint)).data.kitties;
                 this.kitties.userSelected = kitties[0].id.toString();
                 this.kitties.user = kitties;
                 this.upsertKittiesAndGetSwipeRights(kitties);
-                //this.kitties.user = await KittiesService.getAllKittiesWithSwipeRightsForAddress('mainnet', /*this.accounts.user*/'0x401cBf2194D35D078c0BcdAe4BeA42275483ab5F');
             },
             upsertKittiesAndGetSwipeRights: async function(kitties) {
                 await KittiesService.upsertKitties('mainnet', kitties);
-                this.kitties.user = await KittiesService.getAllKittiesWithSwipeRightsForAddress('mainnet', '0x401cBf2194D35D078c0BcdAe4BeA42275483ab5F'.toLowerCase());
+                this.kitties.user = await KittiesService.getAllKittiesWithSwipeRightsForAddress('mainnet', this.accounts.user.toLowerCase());
                 this.kitties.userSelected = this.kitties.user[0].id.toString();
                 console.log(this.kitties.user);
             },
