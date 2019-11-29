@@ -12,8 +12,9 @@
             <div class="col">
                 <b-card-group columns>
 
-                    <b-card :img-src="kittie.image_url_png" v-for="(kittie, idx) in kitties.user" :key="idx" class="p-0" :class="{'border-primary': kittie.id.toString() === kitties.userSelected}">
-                        <b-card-title class="text-center">{{ kittie.name }}</b-card-title>
+                    <b-card v-for="(kittie, idx) in kitties.user" :key="idx" class="p-0" :class="{'border-primary': kittie.id.toString() === kitties.userSelected}">
+                        <b-card-img :src="kittie.image_url_png" @click="userKittieSelected(kittie.id.toString())"></b-card-img>
+                        <b-card-title class="text-center" @click="userKittieSelected(kittie.id.toString())">{{ kittie.name }}</b-card-title>
                         <b-card-text class="">
                             <div class="row text-center">
                                 <div class="col"><span class="badge badge-light">{{ kittie.id }}</span></div>
@@ -31,7 +32,7 @@
                                         <img style="height: 80px" :src="swipeRight.stud.studImg"/>
                                     </div>
                                     <div class="col text-right">
-                                        <button @click="acceptRight(kittie.id, swipeRight.stud.id)" v-if="swipeRight.status === 'PENDING'" class="btn">💖</button>
+                                        <button @click="acceptRight(kittie.id, swipeRight.stud.id)" v-if="swipeRight.status === 'PENDING'" class="btn btn-lg">💖</button>
                                     </div>
                                 </div>
                             </b-list-group-item>
@@ -40,19 +41,6 @@
 
                 </b-card-group>
             </div>
-            <!--<ul>-->
-                <!--<li v-for="(kittie, idx) in kitties.user" :key="idx" style="display: block;">-->
-                    <!--<input type="radio" name="userKittie" :checked="kittie.id.toString() === kitties.userSelected" :value="kittie.id.toString()" @change="userKittieSelected"/>-->
-                    <!--<img style="height: 80px" :src="kittie.image_url_png"/>-->
-                    <!--<small> {{kittie.id}}</small>-->
-                    <!-- - -->
-                    <!--<small> {{kittie.name}}</small>-->
-                    <!--<small v-for="(swipeRight, idx) in kittie.swipeRights" :key="idx">-->
-                        <!-- - {{swipeRight.status}} Swipe Right from <img style="height: 80px" :src="swipeRight.stud.studImg"/>-->
-                        <!--<button @click="acceptRight(kittie.id, swipeRight.stud.id)" v-if="swipeRight.status === 'PENDING'">💖</button>-->
-                    <!--</small>-->
-                <!--</li>-->
-            <!--</ul>-->
         </div>
         <div v-else class="alert alert-warning">
             You don't own any kitties...
@@ -83,10 +71,10 @@
                 <b-card-footer>
                     <div class="row">
                         <div class="col">
-                            <button class="btn">💔</button>
+                            <button class="btn btn-lg">💔</button>
                         </div>
                         <div class="col text-right">
-                            <button @click="swipeRight(kittie.id.toString())" class="btn">💖</button>
+                            <button @click="swipeRight(kittie.id.toString())" class="btn btn-lg">💖</button>
                         </div>
                     </div>
                 </b-card-footer>
@@ -179,8 +167,8 @@
                 this.kitties.userSelected = this.kitties.user[0].id.toString();
                 console.log(this.kitties.user);
             },
-            userKittieSelected: async function (e) {
-                this.kitties.userSelected = e.target.value;
+            userKittieSelected: async function (id) {
+                this.kitties.userSelected = id;
             }
         },
         async mounted() {
