@@ -21,8 +21,9 @@
                             </div>
                         </b-card-text>
 
+                        <h5>Incoming</h5>
                         <b-list-group flush class="border-top">
-                            <b-list-group-item v-for="(swipeRight, idx) in kittie.swipeRightsIncoming" :key="idx" :class="{'bg-light': swipeRight.status === 'PENDING', 'bg-minty': swipeRight.status === 'MATCH'}">
+                            <b-list-group-item v-for="(swipeRight, idx) in kittie.swipeRightsIncoming" :key="`I${idx}`" :class="{'bg-light': swipeRight.status === 'PENDING', 'bg-minty': swipeRight.status === 'MATCH'}">
                                 <div class="row">
                                     <div class="col">
                                         <span class="badge" :class="{'badge-warning': swipeRight.status === 'PENDING', 'badge-light': swipeRight.status === 'MATCH'}">{{swipeRight.status}}</span>
@@ -40,9 +41,11 @@
                                     </div>
                                 </div>
                             </b-list-group-item>
+                        </b-list-group>
 
-                            
-                            <b-list-group-item v-for="(swipeRight, idx) in kittie.swipeRightsOutgoing" :key="idx" :class="{'bg-light': swipeRight.status === 'PENDING', 'bg-minty': swipeRight.status === 'MATCH'}">
+                        <h5>Outgoing</h5>
+                        <b-list-group flush class="border-top">
+                            <b-list-group-item v-for="(swipeRight, idx) in kittie.swipeRightsOutgoing" :key="`O${idx}`" :class="{'bg-light': swipeRight.status === 'PENDING', 'bg-minty': swipeRight.status === 'MATCH'}">
                                 <div class="row">
                                     <div class="col">
                                        <span class="badge" :class="{'badge-warning': swipeRight.status === 'PENDING', 'badge-light': swipeRight.status === 'MATCH'}">{{swipeRight.status}}</span>

@@ -94,12 +94,15 @@ export default new class KittiesService {
         const networkRef = db.collection('kitties').doc('network').collection(network);
         const studMatchDataRef = networkRef.doc(studId).collection('match').doc(otherKittieId);
         const otherMatchDataRef = networkRef.doc(otherKittieId).collection('match').doc(studId);
-        const otherSwipeRightDataRef = networkRef.doc(otherKittieId).collection('swipeRight').doc(studId);
+
+        const otherSwipeRightIncomingDataRef = networkRef.doc(otherKittieId).collection('swipeRightIncoming').doc(studId);
+        const otherSwipeRightOutgoingDataRef = networkRef.doc(studId).collection('swipeRightOutgoing').doc(otherKittieId);
 
         await db.runTransaction(t => {
             t.set(studMatchDataRef, matchData);
             t.set(otherMatchDataRef, matchData);
-            t.set(otherSwipeRightDataRef, {status: 'MATCH'}, {merge: true});
+            t.set(otherSwipeRightIncomingDataRef, {status: 'MATCH'}, {merge: true});
+            t.set(otherSwipeRightOutgoingDataRef, {status: 'MATCH'}, {merge: true});
             return Promise.resolve('done');
         });
     }
