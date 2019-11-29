@@ -67,16 +67,19 @@ export default new class KittiesService {
     }
 
     async matchKitties(network, studId, otherKittieId) {
+        const timestamp = Math.floor( Date.now() / 1000 );
+
         // challenger data
         const studMatchData = {
-            otherKittieId
+            otherKittieId,
+            timestamp
         };
 
         // challengee data
         const otherKittieMatchData = {
-            studId
+            studId,
+            timestamp
         };
-        //todo: add timestamp of match to data
 
         const networkRef = db.collection('kitties').doc('network').collection(network);
         const studMatchDataRef = networkRef.doc(studId).collection('match').doc(otherKittieId);
