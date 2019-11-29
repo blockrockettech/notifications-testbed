@@ -22,16 +22,40 @@
                         </b-card-text>
 
                         <b-list-group flush class="border-top">
-                            <b-list-group-item v-for="(swipeRight, idx) in kittie.swipeRights" :key="idx" :class="{'bg-light': swipeRight.status === 'PENDING', 'bg-minty': swipeRight.status === 'MATCH'}">
+                            <b-list-group-item v-for="(swipeRight, idx) in kittie.swipeRightsIncoming" :key="idx" :class="{'bg-light': swipeRight.status === 'PENDING', 'bg-minty': swipeRight.status === 'MATCH'}">
                                 <div class="row">
                                     <div class="col">
                                         <span class="badge" :class="{'badge-warning': swipeRight.status === 'PENDING', 'badge-light': swipeRight.status === 'MATCH'}">{{swipeRight.status}}</span>
                                     </div>
                                     <div class="col text-center">
+                                        <img style="height: 80px" :src="swipeRight.kittie.kittieImg"/>
+                                        <span class="small">{{ swipeRight.kittie.name }}</span>
+                                    </div>
+                                    <div class="col text-center">
                                         <img style="height: 80px" :src="swipeRight.stud.studImg"/>
+                                        <span class="small">{{ swipeRight.stud.name }}</span>
                                     </div>
                                     <div class="col text-right">
                                         <button @click="acceptRight(kittie.id, swipeRight.stud.id)" v-if="swipeRight.status === 'PENDING'" class="btn btn-lg">💖</button>
+                                    </div>
+                                </div>
+                            </b-list-group-item>
+
+                            
+                            <b-list-group-item v-for="(swipeRight, idx) in kittie.swipeRightsOutgoing" :key="idx" :class="{'bg-light': swipeRight.status === 'PENDING', 'bg-minty': swipeRight.status === 'MATCH'}">
+                                <div class="row">
+                                    <div class="col">
+                                       <span class="badge" :class="{'badge-warning': swipeRight.status === 'PENDING', 'badge-light': swipeRight.status === 'MATCH'}">{{swipeRight.status}}</span>
+                                    </div>
+                                    <div class="col text-center">
+                                        <img style="height: 80px" :src="swipeRight.stud.studImg"/>
+                                        <span class="small">{{ swipeRight.stud.name }}</span>
+                                    </div>
+                                    <div class="col text-center">
+                                        <img style="height: 80px" :src="swipeRight.kittie.kittieImg"/>
+                                        <span class="small">{{ swipeRight.kittie.name }}</span>
+                                    </div>
+                                    <div class="col text-right">
                                     </div>
                                 </div>
                             </b-list-group-item>
@@ -73,7 +97,7 @@
                             <button class="btn btn-lg">💔</button>
                         </div>
                         <div class="col text-right">
-                            <button @click="swipeRight(kittie.id.toString())" class="btn btn-lg">💖</button>
+                            <button @click="swipeRight(kittie)" class="btn btn-lg">💖</button>
                         </div>
                     </div>
                 </b-card-footer>
@@ -133,7 +157,7 @@
 
                 console.log(`poke [[${pokeId}]] to kittie ${kittieId}`);
             },
-            swipeRight: async function (kittieId) {
+            swipeRight: async function (kittie) {
                 const studId = this.kitties.userSelected;
                 const {image_url_png, name} = this.kitties.user.filter(kittie => kittie.id.toString() === studId)[0];
                 const studPayload = {
@@ -142,9 +166,9 @@
                     name
                 };
                 const msg = `Want to breed with ${studPayload.name}?`;
-                await KittiesService.swipeRight('mainnet', kittieId, studPayload, msg, this.accounts.user.toLowerCase());
+                await KittiesService.swipeRight('mainnet', kittie, studPayload, msg, this.accounts.user.toLowerCase());
 
-                console.log(`swipe right from ${studPayload.id} to ${kittieId}`);
+                console.log(`swipe right from ${studPayload.id} to ${kittie.id.toString()}`);
             },
             acceptRight: async function (kittieId, studId) {
                 await KittiesService.matchKitties('mainnet', studId.toString(), kittieId.toString());
