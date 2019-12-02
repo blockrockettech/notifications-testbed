@@ -195,7 +195,7 @@
         },
         async mounted() {
             messaging.onMessage((payload) => {
-                console.log('Message received. ', payload);
+                console.log('Message received:', payload);
                 const {title, body, icon} = payload.data;
                 new Notification(title, {
                     body,
