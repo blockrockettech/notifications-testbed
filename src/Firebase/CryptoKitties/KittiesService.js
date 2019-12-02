@@ -82,21 +82,21 @@ export default new class KittiesService {
         }));
     }
 
-    async matchKitties(network, studId, otherKittieId) {
+    async matchKitties(network, studId, kittieId) {
         const timestamp = Math.floor(Date.now() / 1000);
 
         const matchData = {
             studId,
-            otherKittieId,
+            kittieId,
             timestamp
         };
 
         const networkRef = db.collection('kitties').doc('network').collection(network);
-        const studMatchDataRef = networkRef.doc(studId).collection('match').doc(otherKittieId);
-        const otherMatchDataRef = networkRef.doc(otherKittieId).collection('match').doc(studId);
+        const studMatchDataRef = networkRef.doc(studId).collection('match').doc(kittieId);
+        const otherMatchDataRef = networkRef.doc(kittieId).collection('match').doc(studId);
 
-        const otherSwipeRightIncomingDataRef = networkRef.doc(otherKittieId).collection('swipeRightIncoming').doc(studId);
-        const otherSwipeRightOutgoingDataRef = networkRef.doc(studId).collection('swipeRightOutgoing').doc(otherKittieId);
+        const otherSwipeRightIncomingDataRef = networkRef.doc(kittieId).collection('swipeRightIncoming').doc(studId);
+        const otherSwipeRightOutgoingDataRef = networkRef.doc(studId).collection('swipeRightOutgoing').doc(kittieId);
 
         await db.runTransaction(t => {
             t.set(studMatchDataRef, matchData);

@@ -185,6 +185,9 @@
             },
             upsertKittiesAndGetSwipeRights: async function (kitties) {
                 await KittiesService.upsertKitties('mainnet', kitties);
+                this.getSwipeRights()
+            },
+            getSwipeRights: async function () {
                 this.kitties.user = await KittiesService.getAllKittiesWithSwipeRightsForAddress('mainnet', this.accounts.user.toLowerCase());
                 this.kitties.userSelected = this.kitties.user[0].id.toString();
                 console.log(this.kitties.user);
@@ -196,11 +199,15 @@
         async mounted() {
             messaging.onMessage((payload) => {
                 console.log('Message received:', payload);
+
+                // in foreground
                 const {title, body, icon} = payload.data;
                 new Notification(title, {
                     body,
                     icon
                 });
+
+                this.getSwipeRights();
             });
 
             messaging.onTokenRefresh(() => this.getFCMToken());
