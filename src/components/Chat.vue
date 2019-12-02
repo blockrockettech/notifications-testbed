@@ -3,7 +3,7 @@
 
         <div class="row mb-4" v-if="accounts.user">
             <div class="col">
-               Your account: {{accounts.user}}
+                Your account: {{accounts.user}}
             </div>
         </div>
 
@@ -11,7 +11,7 @@
             <div class="col">
                 <b-card-group columns>
 
-                    <b-card v-for="(kittie, idx) in kitties.user" :key="idx" class="p-0" :class="{'border-primary': kittie.id.toString() === kitties.userSelected}">
+                    <b-card v-for="(kittie, idx) in kitties.user" :key="idx" class="p-0 text-center" :class="{'border-primary': kittie.id.toString() === kitties.userSelected}">
                         <b-card-img :src="kittie.image_url_png" @click="userKittieSelected(kittie.id.toString())"></b-card-img>
                         <b-card-title class="text-center" @click="userKittieSelected(kittie.id.toString())">{{ kittie.name }}</b-card-title>
                         <b-card-text class="">
@@ -22,39 +22,49 @@
                         </b-card-text>
 
                         <b-list-group flush class="border-top">
-                            <b-list-group-item v-for="(swipeRight, idx) in kittie.swipeRightsIncoming" :key="`I${idx}`" :class="{'bg-light': swipeRight.status === 'PENDING', 'bg-minty': swipeRight.status === 'MATCH'}">
+                            <b-list-group-item v-for="(swipeRight, idx) in kittie.swipeRightsIncoming" :key="`I${idx}`"
+                                               :class="{'bg-light': swipeRight.status === 'PENDING', 'bg-minty': swipeRight.status === 'MATCH'}">
                                 <div class="row">
                                     <div class="col">
-                                        <span class="badge" :class="{'badge-warning': swipeRight.status === 'PENDING', 'badge-light': swipeRight.status === 'MATCH'}">INCOMING {{swipeRight.status}}</span>
+                                        <span class="badge"
+                                              :class="{'badge-warning': swipeRight.status === 'PENDING', 'badge-light': swipeRight.status === 'MATCH'}">INCOMING {{swipeRight.status}}</span>
+
+                                        <div class="row">
+                                            <div class="col">
+                                                <img style="height: 80px" :src="swipeRight.kittie.kittieImg"/>
+                                                <div class="small">{{ swipeRight.kittie.name }}</div>
+                                            </div>
+
+                                            <div class="col">
+                                                <img style="height: 80px" :src="swipeRight.stud.studImg"/>
+                                                <div class="small">{{ swipeRight.stud.name }}</div>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <!--<div class="col text-center">-->
-                                        <!--<img style="height: 80px" :src="swipeRight.kittie.kittieImg"/>-->
-                                        <!--<span class="small">{{ swipeRight.kittie.name }}</span>-->
-                                    <!--</div>-->
-                                    <div class="col-8">
-                                        <img style="height: 80px" :src="swipeRight.stud.studImg"/>
-                                        <span class="small">{{ swipeRight.stud.name }}</span>
-                                    </div>
-                                    <div class="col text-right">
-                                        <button @click="acceptRight(kittie.id, swipeRight.stud.id)" v-if="swipeRight.status === 'PENDING'" class="btn btn-lg">💖</button>
+                                </div>
+                                <div class="row mt-2">
+                                    <div class="col text-right" v-if="swipeRight.status === 'PENDING'">
+                                        <button @click="acceptRight(kittie.id, swipeRight.stud.id)" class="btn btn-info btn-sm">Match 💖</button>
                                     </div>
                                 </div>
                             </b-list-group-item>
 
-                            <b-list-group-item v-for="(swipeRight, idx) in kittie.swipeRightsOutgoing" :key="`O${idx}`" :class="{'bg-light': swipeRight.status === 'PENDING', 'bg-minty': swipeRight.status === 'MATCH'}">
+                            <b-list-group-item v-for="(swipeRight, idx) in kittie.swipeRightsOutgoing" :key="`O${idx}`"
+                                               :class="{'bg-light': swipeRight.status === 'PENDING', 'bg-minty': swipeRight.status === 'MATCH'}">
                                 <div class="row">
                                     <div class="col">
-                                       <span class="badge" :class="{'badge-warning': swipeRight.status === 'PENDING', 'badge-light': swipeRight.status === 'MATCH'}">OUT {{swipeRight.status}}</span>
-                                    </div>
-                                    <!--<div class="col text-center">-->
-                                        <!--<img style="height: 80px" :src="swipeRight.stud.studImg"/>-->
-                                        <!--<span class="small">{{ swipeRight.stud.name }}</span>-->
-                                    <!--</div>-->
-                                    <div class="col-8">
-                                        <img style="height: 80px" :src="swipeRight.kittie.kittieImg"/>
-                                        <span class="small">{{ swipeRight.kittie.name }}</span>
-                                    </div>
-                                    <div class="col text-right">
+                                        <span class="badge" :class="{'badge-warning': swipeRight.status === 'PENDING', 'badge-light': swipeRight.status === 'MATCH'}">OUT {{swipeRight.status}}</span>
+
+                                        <div class="row">
+                                            <div class="col">
+                                                <img style="height: 80px" :src="swipeRight.stud.studImg"/>
+                                                <div class="small">{{ swipeRight.stud.name }}</div>
+                                            </div>
+                                            <div class="col">
+                                                <img style="height: 80px" :src="swipeRight.kittie.kittieImg"/>
+                                                <div class="small">{{ swipeRight.kittie.name }}</div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </b-list-group-item>
@@ -92,11 +102,8 @@
 
                 <b-card-footer>
                     <div class="row">
-                        <div class="col">
-                            <button class="btn btn-lg">💔</button>
-                        </div>
                         <div class="col text-right">
-                            <button @click="swipeRight(kittie)" class="btn btn-lg">💖</button>
+                            <button @click="swipeRight(kittie)" class="btn btn-info btn-sm">Swipe right 💖</button>
                         </div>
                     </div>
                 </b-card-footer>
@@ -148,14 +155,6 @@
                     .then(currentToken => this.onFCMTokenReceived(currentToken))
                     .catch((err) => console.log('An error occurred while retrieving token. ', err));
             },
-            poke: function (kittieId) {
-                const uuid = this.$uuid;
-                const pokeId = uuid.v4();
-                const msg = 'Hello treakle, want to tinder?';
-                KittiesService.poke('mainnet', pokeId, kittieId, msg, this.accounts.user, this.kitties.user[0]);
-
-                console.log(`poke [[${pokeId}]] to kittie ${kittieId}`);
-            },
             swipeRight: async function (kittie) {
                 const studId = this.kitties.userSelected;
                 const {image_url_png, name} = this.kitties.user.filter(kittie => kittie.id.toString() === studId)[0];
@@ -168,29 +167,38 @@
                 await KittiesService.swipeRight('mainnet', kittie, studPayload, msg, this.accounts.user.toLowerCase());
 
                 console.log(`swipe right from ${studPayload.id} to ${kittie.id.toString()}`);
+
+                // refresh page to see who your chasing
+                this.getSwipeRights();
             },
             acceptRight: async function (kittieId, studId) {
+                // it's a match
+                console.log(`matching ${kittieId} to ${studId}`);
                 await KittiesService.matchKitties('mainnet', studId.toString(), kittieId.toString());
-                console.log('done matching!');
             },
             find: async function () {
                 this.kitties.other = await KittiesService.getAllKittiesForAddress('mainnet', this.accounts.other.toLowerCase());
             },
-            getUserKitties: async function () {
+            getBlockchainUserKitties: async function () {
+
+                // this loads from the blockchain and pushes to firebase - then gets the current data
+                // this always upserts to get data fresh in case of transfers
                 const cryptoKittiesApiEndpoint = `https://api.cryptokitties.co/v2/kitties?offset=0&limit=12&owner_wallet_address=${this.accounts.user}&parents=false&authenticated=true&include=sale,sire,other&orderBy=id&orderDirection=desc`;
                 const kitties = (await axios.get(cryptoKittiesApiEndpoint)).data.kitties;
-                this.kitties.userSelected = kitties[0].id.toString();
+
                 this.kitties.user = kitties;
+
+                this.userKittieSelected(kitties[0].id.toString());
                 this.upsertKittiesAndGetSwipeRights(kitties);
             },
             upsertKittiesAndGetSwipeRights: async function (kitties) {
                 await KittiesService.upsertKitties('mainnet', kitties);
-                this.getSwipeRights()
+                this.getSwipeRights();
             },
             getSwipeRights: async function () {
                 this.kitties.user = await KittiesService.getAllKittiesWithSwipeRightsForAddress('mainnet', this.accounts.user.toLowerCase());
                 this.kitties.userSelected = this.kitties.user[0].id.toString();
-                console.log(this.kitties.user);
+                console.log(`My kitties`, this.kitties.user);
             },
             userKittieSelected: async function (id) {
                 this.kitties.userSelected = id;
@@ -207,28 +215,28 @@
                     icon
                 });
 
+                // something happened get the latest data!!
                 this.getSwipeRights();
             });
 
             messaging.onTokenRefresh(() => this.getFCMToken());
 
+            // simple setup
             await window.ethereum.enable();
             const provider = new ethers.providers.Web3Provider(web3.currentProvider);
-            const signer = provider.getSigner();
-
-            const {chainId} = await provider.getNetwork();
 
             const accounts = await provider.listAccounts();
             if (accounts && accounts.length) {
                 this.accounts.user = accounts[0];
 
+                // open up notification with a browser allow request
                 Notification.requestPermission().then(permission => {
                     if (permission === 'granted') {
                         console.log('Notification permission granted.');
 
                         this.getFCMToken();
 
-                        this.getUserKitties();
+                        this.getBlockchainUserKitties();
                     } else {
                         console.log('Unable to get permission to notify.');
                     }
@@ -252,5 +260,9 @@
 
     .card-body {
         padding: 0;
+    }
+
+    .card-img {
+        width: 50%;
     }
 </style>
