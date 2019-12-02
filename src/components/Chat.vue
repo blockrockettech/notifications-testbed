@@ -3,7 +3,7 @@
 
         <div class="row mb-4" v-if="accounts.user">
             <div class="col">
-                Your account: {{accounts.user}}
+                Your account: <code>{{accounts.user}}</code>
             </div>
         </div>
 
@@ -74,8 +74,11 @@
                 </b-card-group>
             </div>
         </div>
-        <div v-else class="alert alert-warning">
+        <div v-else-if="kitties.user && kitties.user.length === 0" class="alert alert-info">
             You don't own any kitties...
+        </div>
+        <div v-else class="alert alert-warning">
+            loading...
         </div>
 
         <hr/>

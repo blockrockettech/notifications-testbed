@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <h1 class="text-center">🔥Crypto Kitties Tinder🔥</h1>
+    <h1 class="text-center">🔥 Kitty Tinder 🔥</h1>
 
     <router-view/>
   </div>
